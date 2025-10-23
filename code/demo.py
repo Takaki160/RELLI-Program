@@ -2,7 +2,7 @@ import requests
 import fitz  # Import PyMuPDF library
 
 # === 1. Read PDF ===
-pdf_path = r"D:/UCLA/Quarter 1/RELLI-Program/Career Accelerator Program - Relli.pdf"
+pdf_path = r"D:/UCLA/Quarter 1/RELLI-Program/docs/Career Accelerator Program - Relli.pdf"
 text_content = ""
 
 try:
