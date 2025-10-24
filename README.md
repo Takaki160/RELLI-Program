@@ -57,7 +57,7 @@ You can then use the model in Python by sending requests to the Ollama server us
 
 ### Using LLMs via API
 
-You can also use LLMs via APIs like Google Gemini API. To use the Google Gemini API, you need to acquire an API key from the 
+You can also use LLMs via LLM APIs. Take Google Gemini API as an example, you need to acquire an API key from the [Google AI Studio](https://aistudio.google.com/). For using the API in Python, you can refer to its [official documentation](https://ai.google.dev/gemini-api/docs/quickstart).
 
 ## Roadmap
 
