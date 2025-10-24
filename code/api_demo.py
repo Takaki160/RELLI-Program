@@ -1,5 +1,7 @@
-import requests
+import os
+import types
 import fitz  # Import the PyMuPDF library
+from google.genai import Client as GenAIClient # Renamed to avoid confusion
 
 def extract_text_from_pdf(pdf_path: str) -> str:
     """
@@ -26,62 +28,57 @@ def extract_text_from_pdf(pdf_path: str) -> str:
         print(f"❌ Error reading PDF with PyMuPDF: {e}")
         return ""
 
-def call_ollama_model(prompt_content: str, model_name: str) -> str:
+def call_gemini_model(prompt_content: str, model_name: str) -> str:
     """
-    Sends a prompt to a local Ollama model and returns its response.
+    Sends a prompt to the Google Gemini API using the Client object and returns its response.
 
     Args:
         prompt_content: The full prompt string to send to the model.
-        model_name: The name of the Ollama model to use (e.g., "llama3.1:latest").
+        model_name: The name of the Gemini model to use (e.g., "gemini-1.5-flash").
 
     Returns:
         The model's response text, or an error message if the call fails.
     """
-    url = "http://localhost:11434/api/generate"
-    payload = {
-        "model": model_name,
-        "prompt": prompt_content,
-        "stream": False,
-        "options": {
-            "temperature": 0.0,
-            "top_p": 0.1,
-            "num_ctx": 4096
-        }
-    }
-
-    print(f"📡 Calling Ollama ({model_name}), please wait...")
-
     try:
-        response = requests.post(url, json=payload, timeout=120)
-        if response.status_code == 200:
-            data = response.json()
-            response_text = data.get("response", "").strip()
-            return response_text
-        else:
-            error_message = f"❌ Call Failed: HTTP Status Code {response.status_code}\n❌ Details: {response.text}"
-            if "model '" in response.text and "' not found" in response.text:
-                error_message += f"\n💡 TIP: Please check if the '{model_name}' model is installed and running in Ollama."
-            return error_message
+        # Initialize the GenAI Client with the API key
+        client = GenAIClient(api_key="AIzaSyA34RVfHBY4t1rVbWDP02_BKSYW6gwXmEM")
 
-    except requests.exceptions.RequestException as e:
-        return f"\n❌ Failed to connect to Ollama. Please ensure:\n1. The Ollama service is running at 'http://localhost:11434'.\n2. Error details: {e}"
+        # Define generation config for deterministic output
+        generation_config = {
+            "temperature": 0.0,
+            "top_p": 0.1
+        }
+
+        print(f"📡 Calling Google Gemini API ({model_name}), please wait...")
+
+        # Send the request using the client
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt_content,
+            config=generation_config
+        )
+
+        # Return the model's text response
+        return response.text.strip()
+
+    except Exception as e:
+        return f"❌ An error occurred while calling the Gemini API: {e}"
 
 def main():
     """
     Main function to orchestrate the entire PDF extraction and model query process.
     """
     # === 1. Configuration ===
-    pdf_path = r"D:/UCLA/Quarter 1/RELLI-Program/data/Health Wealth Fund I Offering Memorandum.pdf"
-    model_name = "llama3.1:latest"
-    max_content_length = 15000  # Corresponds to approximately 4096 tokens
+    pdf_path = r"D:/UCLA/Quarter 1/RELLI-Program/data/SIG III Brochure.pdf"
+    model_name = "gemini-2.5-flash"
+    max_content_length = 15000
 
     # === 2. Extract Text from PDF ===
     pdf_text = extract_text_from_pdf(pdf_path)
     if not pdf_text:
-        # Stop execution if text could not be extracted
         return
 
-    # === 3. Define Question and Construct Prompt ===
+    # === 3. Define Question and Construct Prompt (This part remains the same) ===
     question = """
 Your task is to act as a highly specialized data extraction robot. Your **only** function is to find four specific pieces of information from the provided text and format them into a single line. Ignore all other data points, no matter how relevant they seem.
 
@@ -110,12 +107,12 @@ Your final output must be a single line that perfectly matches the required form
 """
     prompt_content = f"{question}\n\n--- PDF Content Follows (Truncated to first {max_content_length} characters):---\n{pdf_text[:max_content_length]}"
 
-    # === 4. Call the Ollama Model ===
-    result = call_ollama_model(prompt_content, model_name)
+    # === 4. Call the Google Gemini Model ===
+    result = call_gemini_model(prompt_content, model_name)
 
     # === 5. Output the Result ===
     print("=============================================")
-    print("✅ Model Extraction Result:")
+    print("✅ Model Extraction Result (Using Google Gemini):")
     print(result)
     print("=============================================")
 
