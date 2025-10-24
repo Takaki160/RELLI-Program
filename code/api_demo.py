@@ -66,13 +66,15 @@ def call_gemini_model(prompt_content: str, model_name: str, API_KEY: str) -> str
     except Exception as e:
         return f"❌ An error occurred while calling the Gemini API: {e}"
 
-def main(input_pdf_path: str = None, model_name: str = None):
+def main(pdf_path: str = None, model_name: str = None):
     """
     Main function to orchestrate the entire PDF extraction and model query process.
     """
     # === 1. Configuration ===
-    pdf_path = input_pdf_path
-    model_name = model_name
+    if pdf_path is None:
+        pdf_path = input("Please enter the path to the PDF file: ").strip()
+    if model_name is None:
+        model_name = input("Please enter the Gemini model name (e.g., 'gemini-1.5-flash'): ").strip()
     max_content_length = MAX_CONTENT_LENGTH
 
     # === 2. Extract Text from PDF ===
@@ -129,4 +131,5 @@ Your final output must be a single line that perfectly matches the required form
     print("=============================================")
 
 if __name__ == "__main__":
-    main()
+    main(pdf_path="D:/UCLA/Quarter 1/RELLI-Program/data/Health Wealth Fund I Offering Memorandum.pdf",
+         model_name="gemini-1.5-flash")
