@@ -3,6 +3,8 @@ import types
 import fitz  # Import the PyMuPDF library
 from google.genai import Client as GenAIClient # Renamed to avoid confusion
 
+MAX_CONTENT_LENGTH = 15000  # Maximum number of characters to include from the PDF text
+
 def extract_text_from_pdf(pdf_path: str) -> str:
     """
     Opens and reads a PDF file, extracting all its text content.
@@ -28,7 +30,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
         print(f"❌ Error reading PDF with PyMuPDF: {e}")
         return ""
 
-def call_gemini_model(prompt_content: str, model_name: str) -> str:
+def call_gemini_model(prompt_content: str, model_name: str, API_KEY: str) -> str:
     """
     Sends a prompt to the Google Gemini API using the Client object and returns its response.
 
@@ -41,7 +43,7 @@ def call_gemini_model(prompt_content: str, model_name: str) -> str:
     """
     try:
         # Initialize the GenAI Client with the API key
-        client = GenAIClient(api_key="your google gemini api key")
+        client = GenAIClient(api_key=API_KEY)
 
         # Define generation config for deterministic output
         generation_config = {
@@ -64,14 +66,14 @@ def call_gemini_model(prompt_content: str, model_name: str) -> str:
     except Exception as e:
         return f"❌ An error occurred while calling the Gemini API: {e}"
 
-def main():
+def main(input_pdf_path: str = None, model_name: str = None):
     """
     Main function to orchestrate the entire PDF extraction and model query process.
     """
     # === 1. Configuration ===
-    pdf_path = r"D:/UCLA/Quarter 1/RELLI-Program/data/SIG III Brochure.pdf"
-    model_name = "gemini-2.5-flash"
-    max_content_length = 15000
+    pdf_path = input_pdf_path
+    model_name = model_name
+    max_content_length = MAX_CONTENT_LENGTH
 
     # === 2. Extract Text from PDF ===
     pdf_text = extract_text_from_pdf(pdf_path)
@@ -108,8 +110,18 @@ Your final output must be a single line that perfectly matches the required form
     prompt_content = f"{question}\n\n--- PDF Content Follows (Truncated to first {max_content_length} characters):---\n{pdf_text[:max_content_length]}"
 
     # === 4. Call the Google Gemini Model ===
-    result = call_gemini_model(prompt_content, model_name)
-
+    api_key = input("Please enter your Google Gemini API Key: ").strip()
+    try:
+        assert api_key, "API Key cannot be empty."
+    except AssertionError as e:
+        print(f"❌ {e}")
+        return
+    try:
+        result = call_gemini_model(prompt_content, model_name, api_key)
+    except Exception as e:
+        # 上面那行不工作，大概率是你的API Key有问题
+        print(f"❌ An unexpected error occurred: {e}")
+        return
     # === 5. Output the Result ===
     print("=============================================")
     print("✅ Model Extraction Result (Using Google Gemini):")
