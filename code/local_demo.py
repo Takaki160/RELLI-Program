@@ -2,7 +2,7 @@ import requests
 import fitz  # Import PyMuPDF library
 
 # === 1. Read PDF ===
-pdf_path = r"D:/UCLA/Quarter 1/RELLI-Program/docs/Career Accelerator Program - Relli.pdf"
+pdf_path = r"D:/UCLA/Quarter 1/RELLI-Program/data/Health Wealth Fund I Offering Memorandum.pdf"
 text_content = ""
 
 try:
@@ -20,22 +20,40 @@ except Exception as e:
     print(f"❌ Error reading PDF with PyMuPDF: {e}")
     exit()
 
+# Optional: Save extracted text to a file for review
+# try:
+#     with open("extracted_text_output.txt", "w", encoding="utf-8") as f:
+#         f.write(text_content)
+#     print("💡 INFO: Extracted text has been saved to 'extracted_text_output.txt' for review.")
+# except Exception as e:
+#     print(f"⚠️ WARNING: Could not save extracted text to file. Error: {e}")
+
 # === 2. Question (Prompt) ===
 question = """
-The following PDF content is in **English**.
-Please extract and summarize the timeline information (Timeline) found in the English content.
-The timeline typically includes start and end dates for semesters, event timings, and registration or exam deadlines.
+Your task is to act as a highly specialized data extraction robot. Your **only** function is to find four specific pieces of information from the provided text and format them into a single line. Ignore all other data points, no matter how relevant they seem.
 
-**Please strictly follow the output requirements below. This is crucial for consistency:**
-1. Output **only** a single line of content.
-2. **Strictly** start the output with “Timeline: ”.
-3. **Do not** output any extra explanations, greetings, or additional text.
+**== ABSOLUTE OUTPUT REQUIREMENTS ==**
 
-**Example Output Format:**
-Timeline: 09/2023-06/2024 (Fall)
+1.  Your entire response **MUST** be on a single line. There must be no newline characters.
+2.  The response format **MUST** be exactly: `Target Return: [value], Minimum: [value], Hold Period: [value]`
+3.  You **MUST NOT** include any keys other than the four specified above (e.g., no "Preferred Return", "Equity Required", etc.).
+4.  If a value for any of the four required keys is not found, you **MUST** use the word `Unknown` in its place.
+5.  Your response **MUST NOT** contain any explanations, apologies, or introductory text.
 
-**If no timeline is found, strictly respond with:**
-Timeline: Unknown
+**== DATA EXTRACTION RULES ==**
+
+* **"Target Return"**: Find the target return (often called IRR).
+    * If it's a range (e.g., "16-20%"), extract **only the maximum value**.
+    * The final output **MUST** be a string formatted as a percentage with two decimal places (e.g., "20.00%").
+
+* **"Minimum"**: Find the minimum investment amount.
+    * The final output **MUST** be a string starting with a dollar sign and using commas for thousands (e.g., "$100,000").
+
+* **"Hold Period"**: Find the hold period.
+    * You **MUST** convert this value to months.
+    * If it is a range (e.g., "3-5 years"), take the **maximum value** (5 years) and then convert it to months (outputting "60 Months").
+
+Your final output must be a single line that perfectly matches the required format.
 """
 
 # Limit PDF content length to prevent token overflow
@@ -63,7 +81,7 @@ print(f"📡 Calling Ollama ({model_name}), please wait...")
 print(f"📡 Using Temperature: {payload['options']['temperature']}")
 
 try:
-    response = requests.post(url, json=payload, timeout=120)
+    response = requests.post(url, json=payload, timeout=300)  # Increased timeout for large processing
 
     # === 4. Output Result ===
     if response.status_code == 200:
