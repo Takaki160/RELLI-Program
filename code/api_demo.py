@@ -41,7 +41,7 @@ def call_gemini_model(prompt_content: str, model_name: str) -> str:
     """
     try:
         # Initialize the GenAI Client with the API key
-        client = GenAIClient(api_key="AIzaSyA34RVfHBY4t1rVbWDP02_BKSYW6gwXmEM")
+        client = GenAIClient(api_key="your google gemini api key")
 
         # Define generation config for deterministic output
         generation_config = {

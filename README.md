@@ -34,7 +34,7 @@ The main components of the project include:
 
 3. **Financial Evaluation**: Integrating the financial model developed by the *Finance Team* to assess the investment projects based on the extracted data.
 
-### Using LLMs in Python
+### Using LLMs Locally
 
 To use the LLMs locally, you may need to install [Ollama](https://ollama.com/), and download models via terminal commands. Take `Llama 3.1` as an example:
 
@@ -55,15 +55,19 @@ ollama run llama:3.1
 
 You can then use the model in Python by sending requests to the Ollama server using the `requests` library.
 
+### Using LLMs via API
+
+You can also use LLMs via APIs like Google Gemini API. To use the Google Gemini API, you need to acquire an API key from the 
+
 ## Roadmap
 
 1. **Week 1-2**: Research and select appropriate LLMs for data extraction. Collect sample investment project documents and corresponding financial indicators. The sample dataset should be the following format:
 
-| Project Name | Document (PDF) | Financial Indicator 1 | Financial Indicator 2 | ... |
-|--------------|----------------|-----------------------|-----------------------|-----|
-| Project A    | project_a.pdf  | Value A1              | Value A2              | ... |
-| Project B    | project_b.pdf  | Value B1              | Value B2              | ... |
-| ...          | ...            | ...                   | ...                   | ... |
+    | Project Name | Document (PDF) | Financial Indicator 1 | Financial Indicator 2 | ... |
+    |--------------|----------------|-----------------------|-----------------------|-----|
+    | Project A    | project_a.pdf  | Value A1              | Value A2              | ... |
+    | Project B    | project_b.pdf  | Value B1              | Value B2              | ... |
+    | ...          | ...            | ...                   | ...                   | ... |
 
 2. **Week 3**: Develop the document reading and data extraction modules.
 
