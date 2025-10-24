@@ -30,7 +30,7 @@ The main components of the project include:
 
 1. **Reading Documents**: Using the `PyMuPDF` library to batch read investment project documents in PDF format and convert them into text format.
 
-2. **Data Extraction**: Using open-source Large Language Models (LLMs) such as `Llama` to extract necessary financial indicators from the text.
+2. **Data Extraction**: Using open-source Large Language Models (LLMs) like `Llama` and `Gemini` to extract necessary financial indicators from the text.
 
 3. **Financial Evaluation**: Integrating the financial model developed by the *Finance Team* to assess the investment projects based on the extracted data.
 
