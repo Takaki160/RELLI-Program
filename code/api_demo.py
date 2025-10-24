@@ -1,9 +1,5 @@
-import os
-import types
 import fitz  # Import the PyMuPDF library
-from google.genai import Client as GenAIClient # Renamed to avoid confusion
-
-MAX_CONTENT_LENGTH = 15000  # Maximum number of characters to include from the PDF text
+from google import genai
 
 def extract_text_from_pdf(pdf_path: str) -> str:
     """
@@ -30,7 +26,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
         print(f"❌ Error reading PDF with PyMuPDF: {e}")
         return ""
 
-def call_gemini_model(prompt_content: str, model_name: str, API_KEY: str) -> str:
+def call_gemini_model(prompt_content: str, model_name: str, api_key: str) -> str:
     """
     Sends a prompt to the Google Gemini API using the Client object and returns its response.
 
@@ -43,8 +39,7 @@ def call_gemini_model(prompt_content: str, model_name: str, API_KEY: str) -> str
     """
     try:
         # Initialize the GenAI Client with the API key
-        client = GenAIClient(api_key=API_KEY)
-
+        client = genai.Client(api_key=api_key)
         # Define generation config for deterministic output
         generation_config = {
             "temperature": 0.0,
@@ -66,7 +61,7 @@ def call_gemini_model(prompt_content: str, model_name: str, API_KEY: str) -> str
     except Exception as e:
         return f"❌ An error occurred while calling the Gemini API: {e}"
 
-def main(pdf_path: str = None, model_name: str = None):
+def main(pdf_path: str = None, model_name: str = None, api_key: str = None):
     """
     Main function to orchestrate the entire PDF extraction and model query process.
     """
@@ -74,15 +69,16 @@ def main(pdf_path: str = None, model_name: str = None):
     if pdf_path is None:
         pdf_path = input("Please enter the path to the PDF file: ").strip()
     if model_name is None:
-        model_name = input("Please enter the Gemini model name (e.g., 'gemini-1.5-flash'): ").strip()
-    max_content_length = MAX_CONTENT_LENGTH
+        model_name = input("Please enter the Gemini model name: ").strip()
+    if api_key is None:
+        api_key = input("Please enter your Google Gemini API Key: ").strip()
 
     # === 2. Extract Text from PDF ===
     pdf_text = extract_text_from_pdf(pdf_path)
     if not pdf_text:
         return
 
-    # === 3. Define Question and Construct Prompt (This part remains the same) ===
+    # === 3. Define Question and Construct Prompt ===
     question = """
 Your task is to act as a highly specialized data extraction robot. Your **only** function is to find four specific pieces of information from the provided text and format them into a single line. Ignore all other data points, no matter how relevant they seem.
 
@@ -109,21 +105,15 @@ Your task is to act as a highly specialized data extraction robot. Your **only**
 
 Your final output must be a single line that perfectly matches the required format.
 """
-    prompt_content = f"{question}\n\n--- PDF Content Follows (Truncated to first {max_content_length} characters):---\n{pdf_text[:max_content_length]}"
+    prompt_content = f"{question}\n--- PDF Content Follows:---\n{pdf_text}"
 
     # === 4. Call the Google Gemini Model ===
-    api_key = input("Please enter your Google Gemini API Key: ").strip()
-    try:
-        assert api_key, "API Key cannot be empty."
-    except AssertionError as e:
-        print(f"❌ {e}")
-        return
     try:
         result = call_gemini_model(prompt_content, model_name, api_key)
     except Exception as e:
-        # 上面那行不工作，大概率是你的API Key有问题
         print(f"❌ An unexpected error occurred: {e}")
         return
+
     # === 5. Output the Result ===
     print("=============================================")
     print("✅ Model Extraction Result (Using Google Gemini):")
@@ -131,6 +121,7 @@ Your final output must be a single line that perfectly matches the required form
     print("=============================================")
 
 if __name__ == "__main__":
-    main(pdf_path="D:/UCLA/Quarter 1/RELLI-Program/data/Health Wealth Fund I Offering Memorandum.pdf",
-         model_name="gemini-1.5-flash")
-# End of code file code/api_demo.py
+    main(
+        pdf_path="D:/UCLA/Quarter 1/RELLI-Program/data/Health Wealth Fund I Offering Memorandum.pdf",
+        model_name="gemini-2.5-flash"
+        )
