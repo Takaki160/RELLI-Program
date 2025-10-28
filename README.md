@@ -69,8 +69,14 @@ You can also use LLMs via LLM APIs. Take Google Gemini API as an example, you ne
     | Project B    | project_b.pdf  | Value B1              | Value B2              | ... |
     | ...          | ...            | ...                   | ...                   | ... |
 
-2. **Week 3**: Develop the document reading and data extraction modules.
+2. **Week 3**: Develop the PDF reading and data extraction modules.
 
-3. **Week 4-6**: Test the program on sample documents and refine the extraction process by selecting the best-performing LLMs and optimizing prompts.
+3. **Week 4-6**: Test the modules on sample PDFs and refine the extraction process by selecting the best-performing LLMs and optimizing prompts. The testing results should be recorded in a table like below:
 
-4. **Week 7-8**: Integrate the financial model into the program and conduct end-to-end testing.
+    | Model Used       | Prompt Version | Financial Indicator 1 Accuracy | Financial Indicator 2 Accuracy | ... |
+    |------------------|----------------|--------------------------------|--------------------------------|-----|
+    | Llama 3.1        | Prompt v1      | 85%                            | 90%                            | ... |
+    | Gemini 2.5-Flash | Prompt v2      | 88%                            | 92%                            | ... |
+    | ...              | ...            | ...                            | ...                            | ... |
+
+4. **Week 7-8**: Integrate the financial model developed by the *Finance Team* and conduct end-to-end testing.
